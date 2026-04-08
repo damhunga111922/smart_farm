@@ -1,1 +1,71 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <DHT.h>
 
+#define DHTPIN A3
+#define DHTTYPE DHT11
+#define LIGHT_PIN A2
+#define LED_PIN 7
+#define motor_IN1 3
+#define motor_IN2 5
+
+DHT dht(DHTPIN, DHTTYPE);
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(motor_IN1, OUTPUT);
+  pinMode(motor_IN2, OUTPUT);
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0,0);
+  lcd.print("System Start...");
+  delay(100);
+  lcd.clear();
+}
+
+void loop() {
+
+  float temperature = dht.readTemperature();
+  int lightValue = analogRead(LIGHT_PIN);
+
+  // Điều kiện bật LED
+  if(lightValue > 300){
+    digitalWrite(LED_PIN, HIGH);
+    delay(20);
+  } else {
+    digitalWrite(LED_PIN, LOW);
+    delay(20);
+  }
+/////////////////////////////////////////
+    if(temperature > 35){
+    digitalWrite(motor_IN1, HIGH);
+    digitalWrite(motor_IN2, LOW);
+    delay(20);
+  } else {
+    digitalWrite(motor_IN1, LOW);
+    digitalWrite(motor_IN2, LOW);
+    delay(20);
+  }
+
+  // Serial Monitor
+  Serial.print("Temp: ");
+  Serial.print(temperature);
+  Serial.print(" C  Light: ");
+  Serial.println(lightValue);
+
+  // LCD hiển thị
+  lcd.setCursor(0,0);
+  lcd.print("Temp:");
+  lcd.print(temperature);
+  lcd.print("C   ");
+
+  lcd.setCursor(0,1);
+  lcd.print("Light:");
+  lcd.print(lightValue);
+  lcd.print("   ");
+
+  delay(20);
+}
